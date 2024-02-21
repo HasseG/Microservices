@@ -1,11 +1,13 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PlatformService.Data;
 using PlatformService.Dtos;
+using PlatformService.Models;
 
 namespace PlatformService.Controllers
 {
-    //[controller] Tager navnet på klassen og sletter "controller". Route = api/Platforms
+    //[controller] Tager navnet på klassen og sletter "controller". Route = api/platforms
     [Route("api/[controller]")]
     
     [ApiController]
@@ -31,7 +33,7 @@ namespace PlatformService.Controllers
             return Ok(_mapper.Map<IEnumerable<PlatformReadDto>>(paltformItems));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "GetPlatformById")]
         public ActionResult<PlatformReadDto> GetPlatformById (int id)
         {
             //For debuging
@@ -45,6 +47,25 @@ namespace PlatformService.Controllers
             }
 
             return NotFound();
+        }
+
+        [HttpPost]
+        public ActionResult<PlatformReadDto> CreatePlatform(PlatformCreateDto platformCreateDto)
+        {
+            //Her mapper vi vores create Dto med platform model
+            var platformModel =_mapper.Map<Platform>(platformCreateDto);
+            //Opretter platform med vores nye platform model
+            _repo.CreatePlatform(platformModel);
+            //Kald for at gemme ændringerne
+            _repo.SaveChanges();
+
+            //Når man opretter en ressourcer returnere man den med 201, selve ressourcen og et URI til ressourcen
+            //!HUSK vi bruger ReadDto for at sende ressourcer ud!
+            var platformReadDto = _mapper.Map<PlatformReadDto>(platformModel);
+
+            //CreateAtRoute returnere 201, et URI til ressourcen (som er vores GetPlatformById) med vores nye
+            //ReadDto's id (new {Id = platformReadDto.Id}) og selve ressourcen. Dette er REST best practice.
+            return CreatedAtRoute(nameof(GetPlatformById), new {Id = platformReadDto.Id}, platformReadDto);
         }
     }
 
