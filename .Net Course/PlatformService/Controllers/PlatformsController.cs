@@ -7,6 +7,7 @@ namespace PlatformService.Controllers
 {
     //[controller] Tager navnet på klassen og sletter "controller". Route = api/Platforms
     [Route("api/[controller]")]
+    
     [ApiController]
     public class PlatformsController : ControllerBase
     {
