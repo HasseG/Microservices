@@ -28,11 +28,6 @@ namespace PlatformService.Data
         public Platform GetPlatformById(int id)
         {
             var result = _context.Platforms.FirstOrDefault(p => p.Id == id);
-            if(result == null)
-            {
-                throw new ArgumentNullException(nameof(result));
-            }
-
             return result;
         }
 
