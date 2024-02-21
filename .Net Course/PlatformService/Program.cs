@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using PlatformService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+
+app.MapControllers();
 
 PrepDb.PrepPopulation(app);
 
