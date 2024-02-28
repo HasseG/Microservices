@@ -1,0 +1,17 @@
+# Platforms Node Port Service
+apiVersion: v1 
+# Her siger vi at dette er en service
+kind: Service
+metadata:
+  name: platformnpservice-srv
+spec:
+  type: NodePort
+  selector:
+    app: platformservice
+  ports:
+    - name: platformservice
+      protocol: TCP
+      # Node port
+      port: 80
+      # Service port AKA Platformservice (HUSK DE HAR ÆNDRET DEFAULT PORT FRA 80 --> 8080)
+      targetPort: 8080

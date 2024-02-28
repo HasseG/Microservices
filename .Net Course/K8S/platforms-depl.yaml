@@ -1,0 +1,28 @@
+# Dette er versionen af vores API
+apiVersion: apps/v1
+# Dette er hvilken type vores yaml fil er. I dette tilfælde er det deployment(depl)
+kind: Deployment
+# Her navngiver vi vores deployment "platforms-depl" 
+metadata:
+  name: platforms-depl
+# En replica er antallet af containers der skal køre i vores node (husk cluster indeholder nodes)
+# Dette sørger også for at der altid er mindst 1 container per pod
+# Slettes containeren, spines der bare en ny op
+spec:
+  replicas: 1
+  # Her bruger vi selector til at vælge vores node template
+  selector:
+    matchLabels:
+      app: platformservice
+  # Her definere vi vores node template
+  template:
+    metadata:
+      labels:
+        app: platformservice
+    # Her definere vi vores container der skal køres
+    spec:
+      containers:
+      # Her navngiver vi vores container og vælge hvilket image der skal bruges
+      # Lig mærke til at vi bruge en DockerHub konto og deri finde vores image med dets tag
+        - name: platformservice
+          image: hasseg/platformservice:latest
