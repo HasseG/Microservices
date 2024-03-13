@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlatformService.Data;
 using PlatformService.Dtos;
 using PlatformService.Models;
+using PlatformService.SyncDataServices.Http;
 
 namespace PlatformService.Controllers
 {
@@ -15,11 +16,13 @@ namespace PlatformService.Controllers
     {
         private readonly IPlatformRepo _repo;
         private readonly IMapper _mapper;
+        private readonly ICommandDataClient _dataClient;
 
-        public PlatformsController(IPlatformRepo repo, IMapper mapper)
+        public PlatformsController(IPlatformRepo repo, IMapper mapper, ICommandDataClient dataClient)
         {
             _repo = repo; 
             _mapper = mapper;
+            _dataClient = dataClient;
         }
 
         [HttpGet]
@@ -50,7 +53,7 @@ namespace PlatformService.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PlatformReadDto> CreatePlatform(PlatformCreateDto platformCreateDto)
+        public async Task<ActionResult<PlatformReadDto>> CreatePlatform(PlatformCreateDto platformCreateDto)
         {
             //Her mapper vi vores create Dto med platform model
             var platformModel =_mapper.Map<Platform>(platformCreateDto);
@@ -62,6 +65,15 @@ namespace PlatformService.Controllers
             //Når man opretter en ressourcer returnere man den med 201, selve ressourcen og et URI til ressourcen
             //!HUSK vi bruger ReadDto for at sende ressourcer ud!
             var platformReadDto = _mapper.Map<PlatformReadDto>(platformModel);
+
+            try
+            {
+                await _dataClient.SendPlatformToCommand(platformReadDto);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
+            }
 
             Console.WriteLine($"--> Platform created: {platformModel.Id}");
             //CreateAtRoute returnere 201, et URI til ressourcen (som er vores GetPlatformById) med vores nye
