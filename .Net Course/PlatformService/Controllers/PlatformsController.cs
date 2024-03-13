@@ -1,5 +1,4 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using PlatformService.Data;
 using PlatformService.Dtos;
@@ -75,7 +74,6 @@ namespace PlatformService.Controllers
                 Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
             }
 
-            Console.WriteLine($"--> Platform created: {platformModel.Id}");
             //CreateAtRoute returnere 201, et URI til ressourcen (som er vores GetPlatformById) med vores nye
             //ReadDto's id (new {Id = platformReadDto.Id}) og selve ressourcen. Dette er REST best practice.
             return CreatedAtRoute(nameof(GetPlatformById), new {Id = platformReadDto.Id}, platformReadDto);

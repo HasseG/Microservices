@@ -1,6 +1,4 @@
-using System.Windows.Input;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PlatformService.Data;
 using PlatformService.SyncDataServices.Http;
 
@@ -18,7 +16,6 @@ builder.Services.AddDbContext<AppDbContext>
 
 //Dependeny Injection
 builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
-
 builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
 
 var app = builder.Build();

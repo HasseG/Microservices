@@ -1,29 +1,37 @@
-﻿using PlatformService.Dtos;
+using System.Text;
+using System.Text.Json;
+using PlatformService.Dtos;
 
-namespace PlatformService.SyncDataServices.Http;
-
-public class HttpCommandDataClient : ICommandDataClient
+namespace PlatformService.SyncDataServices.Http
 {
-    private readonly HttpClient _httpClient;
-    private readonly IConfiguration _conf;
-
-    public HttpCommandDataClient(HttpClient httpClient, IConfiguration conf)
+    public class HttpCommandDataClient : ICommandDataClient
     {
-        _httpClient = httpClient;
-        _conf = conf;
-    }
+        private readonly HttpClient _httpClient;
+        private readonly IConfiguration _config;
 
-    public async Task SendPlatformToCommand(PlatformReadDto plat)
-    {
-        var response = await _httpClient.PostAsJsonAsync($"{_conf["CommandService"]}", plat);
-
-        if(response.IsSuccessStatusCode)
+        public HttpCommandDataClient(HttpClient httpClient, IConfiguration config)
         {
-            Console.WriteLine("--> Sync POST to CommandService was OK!");
+            _httpClient = httpClient;
+            _config = config;
         }
-        else
+        public async Task SendPlatformToCommand(PlatformReadDto plat)
         {
-            Console.WriteLine("--> Sync POST to CommandService was NOT OK!");
+            var httpContent = new StringContent(
+                JsonSerializer.Serialize(plat),
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await _httpClient.PostAsync($"{_config["CommandService"]}", httpContent);
+
+            if(response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("--> Sync POST to CommandService was OK!");
+            }
+            else
+            {
+                Console.WriteLine("--> Sync POST to CommandService was not OK!");
+            }
+            
         }
     }
 }

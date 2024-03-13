@@ -1,8 +1,9 @@
-﻿using PlatformService.Dtos;
+using PlatformService.Dtos;
 
-namespace PlatformService.SyncDataServices.Http;
-
-public interface ICommandDataClient
+namespace PlatformService.SyncDataServices.Http
 {
-    Task SendPlatformToCommand(PlatformReadDto plat);
+    public interface ICommandDataClient
+    {
+        Task SendPlatformToCommand(PlatformReadDto plat);
+    }
 }
