@@ -4,7 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 # Her navngiver vi vores deployment "platforms-depl" 
 metadata:
-  name: platforms-depl
+  name: commands-depl
 # En replica er antallet af containers der skal køre i vores node (husk cluster indeholder nodes)
 # Dette sørger også for at der altid er mindst 1 container per pod
 # Slettes containeren, spines der bare en ny op
@@ -13,30 +13,30 @@ spec:
   # Her bruger vi selector til at vælge vores node template
   selector:
     matchLabels:
-      app: platformservice
+      app: commandsservice
   # Her definere vi vores node template
   template:
     metadata:
       labels:
-        app: platformservice
+        app: commandsservice
     # Her definere vi vores container der skal køres
     spec:
       containers:
       # Her navngiver vi vores container og vælge hvilket image der skal bruges
       # Lig mærke til at vi bruge en DockerHub konto og deri finde vores image med dets tag
-        - name: platformservice
-          image: hasseg/platformservice:latest
+        - name: commandsservice
+          image: hasseg/commandsservice:latest
 ---
 apiVersion: v1 
 kind: Service
 metadata:
-  name: platforms-clusterip-srv
+  name: commands-clusterip-srv
 spec:
   type: ClusterIP 
   selector:
-    app: platformservice
+    app: commandsservice
   ports:
-    - name: platformservice
+    - name: commandsservice
       protocol: TCP
       port: 80
       targetPort: 80

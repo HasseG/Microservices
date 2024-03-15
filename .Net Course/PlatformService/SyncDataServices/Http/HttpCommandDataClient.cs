@@ -16,12 +16,7 @@ namespace PlatformService.SyncDataServices.Http
         }
         public async Task SendPlatformToCommand(PlatformReadDto plat)
         {
-            var httpContent = new StringContent(
-                JsonSerializer.Serialize(plat),
-                Encoding.UTF8,
-                "application/json");
-
-            var response = await _httpClient.PostAsync($"{_config["CommandService"]}", httpContent);
+            var response = await _httpClient.PostAsJsonAsync($"{_config["CommandService"]}", plat);
 
             if(response.IsSuccessStatusCode)
             {
