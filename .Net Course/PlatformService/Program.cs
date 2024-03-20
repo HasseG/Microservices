@@ -15,8 +15,18 @@ internal class Program
         builder.Services.AddControllers();
         builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-        builder.Services.AddDbContext<AppDbContext>
-        (opt => opt.UseInMemoryDatabase("InMem"));
+        if(builder.Environment.IsProduction())
+        {
+            Console.WriteLine("--> Using SqlServer Db");
+            builder.Services.AddDbContext<AppDbContext>(opt =>
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("PlatformsDbConnection")));
+        }
+        else
+        {
+            Console.WriteLine("--> Using InMem Db");
+            builder.Services.AddDbContext<AppDbContext>
+            (opt => opt.UseInMemoryDatabase("InMem"));
+        }
 
         //Dependeny Injection
         builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
@@ -36,10 +46,11 @@ internal class Program
         app.UseAuthorization();
 
         app.MapControllers();
-
-        PrepDb.PrepPopulation(app);
         
         Console.WriteLine($"--> CommandService Endpoint {app.Configuration["CommandService"]}");
+
+        PrepDb.PrepPopulation(app, app.Environment.IsProduction());
+        
 
         app.Run();
     }
