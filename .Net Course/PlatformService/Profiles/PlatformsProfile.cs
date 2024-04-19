@@ -15,6 +15,7 @@ namespace PlatformService.Profiles
             //skal vi ikke configuere yderligere (det hedder jo AutoMapper >_>)
             CreateMap<Platform, PlatformReadDto>();
             CreateMap<PlatformCreateDto, Platform>();
+            CreateMap<PlatformReadDto, PlatformPublishDto>();
         }
     }
 }
