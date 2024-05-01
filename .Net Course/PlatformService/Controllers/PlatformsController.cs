@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using PlatformService.AsyncDataService;
 using PlatformService.Data;
 using PlatformService.Dtos;
 using PlatformService.Models;
@@ -16,12 +17,14 @@ namespace PlatformService.Controllers
         private readonly IPlatformRepo _repo;
         private readonly IMapper _mapper;
         private readonly ICommandDataClient _dataClient;
+        private readonly IMessageBusClient _messageBusClient;
 
-        public PlatformsController(IPlatformRepo repo, IMapper mapper, ICommandDataClient dataClient)
+        public PlatformsController(IPlatformRepo repo, IMapper mapper, ICommandDataClient dataClient, IMessageBusClient messageBusClient)
         {
             _repo = repo; 
             _mapper = mapper;
             _dataClient = dataClient;
+            _messageBusClient = messageBusClient;
         }
 
         [HttpGet]
@@ -54,17 +57,18 @@ namespace PlatformService.Controllers
         [HttpPost]
         public async Task<ActionResult<PlatformReadDto>> CreatePlatform(PlatformCreateDto platformCreateDto)
         {
-            //Her mapper vi vores create Dto med platform model
+            // Her mapper vi vores create Dto med platform model
             var platformModel =_mapper.Map<Platform>(platformCreateDto);
-            //Opretter platform med vores nye platform model
+            // Opretter platform med vores nye platform model
             _repo.CreatePlatform(platformModel);
-            //Kald for at gemme ændringerne
+            // Kald for at gemme ændringerne
             _repo.SaveChanges();
 
-            //Når man opretter en ressourcer returnere man den med 201, selve ressourcen og et URI til ressourcen
-            //!HUSK vi bruger ReadDto for at sende ressourcer ud!
+            // Når man opretter en ressourcer returnere man den med 201, selve ressourcen og et URI til ressourcen
+            // !HUSK vi bruger ReadDto for at sende ressourcer ud!
             var platformReadDto = _mapper.Map<PlatformReadDto>(platformModel);
 
+            // Send sync message
             try
             {
                 await _dataClient.SendPlatformToCommand(platformReadDto);
@@ -74,8 +78,20 @@ namespace PlatformService.Controllers
                 Console.WriteLine($"--> Could not send synchronously: {ex.Message}");
             }
 
-            //CreateAtRoute returnere 201, et URI til ressourcen (som er vores GetPlatformById) med vores nye
-            //ReadDto's id (new {Id = platformReadDto.Id}) og selve ressourcen. Dette er REST best practice.
+            // Send Async message
+            try
+            {
+                var platformPulish = _mapper.Map<PlatformPublishDto>(platformReadDto);
+                platformPulish.Event = "Platform_Published";
+                _messageBusClient.PublishNewPlatform(platformPulish);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"--> Could not send async: {ex.Message}");
+            }
+
+            // CreateAtRoute returnere 201, et URI til ressourcen (som er vores GetPlatformById) med vores nye
+            // ReadDto's id (new {Id = platformReadDto.Id}) og selve ressourcen. Dette er REST best practice.
             return CreatedAtRoute(nameof(GetPlatformById), new {Id = platformReadDto.Id}, platformReadDto);
         }
     }

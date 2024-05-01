@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PlatformService.AsyncDataService;
 using PlatformService.Data;
 using PlatformService.SyncDataServices.Http;
 
@@ -31,7 +32,8 @@ internal class Program
         //Dependeny Injection
         builder.Services.AddScoped<IPlatformRepo, PlatformRepo>();
         builder.Services.AddHttpClient<ICommandDataClient, HttpCommandDataClient>();
-
+        builder.Services.AddSingleton<IMessageBusClient, MessageBusClient>();
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
