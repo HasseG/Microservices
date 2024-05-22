@@ -12,9 +12,9 @@ public static class PrepDb
         {
             var grpcCleint = serviceScope.ServiceProvider.GetService<IPlatformDataClient>();
 
-            var paltforms = grpcCleint.ReturnAllPlatforms();
+            var platforms = grpcCleint.ReturnAllPlatforms();
 
-            SeedData(serviceScope.ServiceProvider.GetService<ICommandRepo>(), paltforms);
+            SeedData(serviceScope.ServiceProvider.GetService<ICommandRepo>(), platforms);
         }
     }
 
